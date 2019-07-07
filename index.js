@@ -63,9 +63,8 @@ const mapReduce = async () => {
     }
   });
 
-  const report = await ReportStats.findById({
-    category: cat._id, year: 2019, month: 1
-  });
+  const query = { category: cat._id, year: 2019, month: 1 };
+  const report = await ReportStats.findById(query);
   console.log('report----------');
   console.log(report);
   console.log(report.toJSON());
