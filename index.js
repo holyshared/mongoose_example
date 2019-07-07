@@ -3,7 +3,24 @@ const mongoose = require('mongoose');
 const reportSchema = new mongoose.Schema({ year: Number, month: Number, value: Number });
 const Report = mongoose.model('Report', reportSchema);
 
-const reportStatsSchema = new mongoose.Schema({ _id: { year: Number, month: Number }, value: Number });
+const reportStatsSchema = new mongoose.Schema(
+  {
+    _id: {
+      year: Number,
+      month: Number
+    },
+    value: Number
+  },
+  {
+    _id: false,
+    collection: 'report_stats',
+    toJSON: {
+      transform: function (doc, ret, options) {
+        ret.slug = `${doc._id.year}-${doc._id.month}`;
+        return ret;
+      }
+    }
+  });
 const ReportStats = mongoose.model('ReportStats', reportStatsSchema);
 
 //
@@ -31,6 +48,12 @@ const mapReduce = async () => {
       replace: 'report_stats'
     }
   });
+
+  const report = await ReportStats.findById({ year: 2019, month: 1 });
+  console.log('report----------');
+  console.log(report);
+  console.log(report.toJSON());
+
 };
 
 mapReduce().then(() => {
