@@ -1,6 +1,18 @@
 const mongoose = require('mongoose');
 
-const reportSchema = new mongoose.Schema({ year: Number, month: Number, value: Number });
+const categorySchema = new mongoose.Schema({ name: String });
+const Category = mongoose.model('Category', categorySchema);
+
+const reportSchema = new mongoose.Schema({
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category'
+  },
+  year: Number,
+  month: Number,
+  value: Number
+});
+
 const Report = mongoose.model('Report', reportSchema);
 
 const reportStatsSchema = new mongoose.Schema(
@@ -27,10 +39,12 @@ const ReportStats = mongoose.model('ReportStats', reportStatsSchema);
 mongoose.connect("mongodb://example:example@localhost:27017/example", { useNewUrlParser: true });
 
 const mapReduce = async () => {
+  const cat = await Category.create({ name: 'A' });
+
   await Report.create([
-    { year: 2019, month: 1, value: 1 },
-    { year: 2019, month: 2, value: 1 },
-    { year: 2019, month: 3, value: 1 },
+    { category: cat, year: 2019, month: 1, value: 1 },
+    { category: cat, year: 2019, month: 2, value: 1 },
+    { category: cat, year: 2019, month: 3, value: 1 },
   ]);
 
   await Report.mapReduce({
@@ -39,7 +53,7 @@ const mapReduce = async () => {
     },
     query: { year: 2019 },
     map: function() {
-      emit({ year: this.year, month: this.month }, 1);
+      emit({ category: this.category, year: this.year, month: this.month }, 1);
     },
     reduce: function(key, values) {
       return values.length;
@@ -49,7 +63,7 @@ const mapReduce = async () => {
     }
   });
 
-  const report = await ReportStats.findById({ year: 2019, month: 1 });
+  const report = await ReportStats.findById({ category: cat._id, year: 2019, month: 1 });
   console.log('report----------');
   console.log(report);
   console.log(report.toJSON());
