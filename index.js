@@ -18,8 +18,12 @@ const Report = mongoose.model('Report', reportSchema);
 const reportStatsSchema = new mongoose.Schema(
   {
     _id: {
+      category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category'
+      },
       year: Number,
-      month: Number
+      month: Number,
     },
     value: Number
   },
@@ -64,7 +68,8 @@ const mapReduce = async () => {
   });
 
   const query = { category: cat._id, year: 2019, month: 1 };
-  const report = await ReportStats.findById(query);
+  const options = { populate: { path: '_id.category' } };
+  const report = await ReportStats.findById(query, null, options);
   console.log('report----------');
   console.log(report);
   console.log(report.toJSON());
