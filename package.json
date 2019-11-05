@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/holyshared/mongoose_example#readme",
   "dependencies": {
-    "mongoose": "^5.6.3"
+    "mongoose": "^5.7.5"
   }
 }
